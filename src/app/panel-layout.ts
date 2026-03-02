@@ -110,12 +110,6 @@ export class PanelLayoutManager implements AppModule {
   }
 
   renderLayout(): void {
-    // Fade out the skeleton shell before replacing content
-    const skeleton = this.ctx.container.querySelector('.skeleton-shell');
-    if (skeleton) {
-      skeleton.classList.add('fade-out');
-    }
-
     this.ctx.container.innerHTML = `
       <div class="header">
         <div class="header-left">
