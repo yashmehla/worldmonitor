@@ -110,6 +110,12 @@ export class PanelLayoutManager implements AppModule {
   }
 
   renderLayout(): void {
+    // Fade out the skeleton shell before replacing content
+    const skeleton = this.ctx.container.querySelector('.skeleton-shell');
+    if (skeleton) {
+      skeleton.classList.add('fade-out');
+    }
+
     this.ctx.container.innerHTML = `
       <div class="header">
         <div class="header-left">
@@ -217,13 +223,33 @@ export class PanelLayoutManager implements AppModule {
         </div>
         <div class="panels-grid" id="panelsGrid"></div>
       </div>
+      <button class="scroll-to-top-btn" id="scrollToTopBtn" title="Back to top" aria-label="Scroll to top">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+      </button>
+      <button class="keyboard-shortcuts-btn" id="keyboardShortcutsBtn" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">
+        <kbd>?</kbd>
+      </button>
     `;
 
+    this.setupScrollToTop();
     this.createPanels();
 
     if (this.ctx.isMobile) {
       this.setupMobileMapToggle();
     }
+  }
+
+  private setupScrollToTop(): void {
+    const btn = document.getElementById('scrollToTopBtn');
+    const mainContent = this.ctx.container.querySelector('.main-content');
+    if (!btn || !mainContent) return;
+
+    mainContent.addEventListener('scroll', () => {
+      btn.classList.toggle('visible', mainContent.scrollTop > 400);
+    });
+    btn.addEventListener('click', () => {
+      mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   }
 
   private setupMobileMapToggle(): void {

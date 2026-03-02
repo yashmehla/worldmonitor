@@ -44,6 +44,7 @@ import { invokeTauri } from '@/services/tauri-bridge';
 import { dataFreshness } from '@/services/data-freshness';
 import { mlWorker } from '@/services/ml-worker';
 import { UnifiedSettings } from '@/components/UnifiedSettings';
+import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 import { t } from '@/services/i18n';
 import { TvModeController } from '@/services/tv-mode';
 
@@ -66,6 +67,8 @@ export class EventHandlerManager implements AppModule {
   private boundVisibilityHandler: (() => void) | null = null;
   private boundDesktopExternalLinkHandler: ((e: MouseEvent) => void) | null = null;
   private boundIdleResetHandler: (() => void) | null = null;
+  private boundShortcutsKeyHandler: ((e: KeyboardEvent) => void) | null = null;
+  private keyboardShortcutsModal: KeyboardShortcutsModal | null = null;
   private idleTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private snapshotIntervalId: ReturnType<typeof setInterval> | null = null;
   private clockIntervalId: ReturnType<typeof setInterval> | null = null;
@@ -85,6 +88,7 @@ export class EventHandlerManager implements AppModule {
     this.setupEventListeners();
     this.setupIdleDetection();
     this.setupTvMode();
+    this.setupKeyboardShortcuts();
   }
 
   private setupTvMode(): void {
@@ -128,6 +132,30 @@ export class EventHandlerManager implements AppModule {
     document.getElementById('tvModeBtn')?.classList.toggle('active', this.ctx.tvMode.active);
   }
 
+  private setupKeyboardShortcuts(): void {
+    this.keyboardShortcutsModal = new KeyboardShortcutsModal();
+
+    // Wire up the ? button in the layout
+    document.getElementById('keyboardShortcutsBtn')?.addEventListener('click', () => {
+      this.keyboardShortcutsModal?.open();
+    });
+
+    // Press ? to toggle keyboard shortcuts modal
+    this.boundShortcutsKeyHandler = (e: KeyboardEvent) => {
+      if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const active = document.activeElement;
+        if (active?.tagName === 'INPUT' || active?.tagName === 'TEXTAREA' || (active as HTMLElement)?.isContentEditable) return;
+        e.preventDefault();
+        if (this.keyboardShortcutsModal?.isOpen()) {
+          this.keyboardShortcutsModal.close();
+        } else {
+          this.keyboardShortcutsModal?.open();
+        }
+      }
+    };
+    document.addEventListener('keydown', this.boundShortcutsKeyHandler);
+  }
+
   destroy(): void {
     if (this.boundFullscreenHandler) {
       document.removeEventListener('fullscreenchange', this.boundFullscreenHandler);
@@ -167,6 +195,12 @@ export class EventHandlerManager implements AppModule {
     this.ctx.tvMode = null;
     this.ctx.unifiedSettings?.destroy();
     this.ctx.unifiedSettings = null;
+    if (this.boundShortcutsKeyHandler) {
+      document.removeEventListener('keydown', this.boundShortcutsKeyHandler);
+      this.boundShortcutsKeyHandler = null;
+    }
+    this.keyboardShortcutsModal?.destroy();
+    this.keyboardShortcutsModal = null;
   }
 
   private setupEventListeners(): void {
