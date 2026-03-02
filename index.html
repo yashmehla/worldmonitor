@@ -90,6 +90,10 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favico/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/favico/apple-touch-icon.png" />
 
+    <!-- Resource hints: reduce DNS/TLS latency for frequently accessed origins -->
+    <link rel="dns-prefetch" href="https://api.worldmonitor.app" />
+    <link rel="dns-prefetch" href="https://www.youtube.com" />
+    <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
 
     <!-- Theme: apply stored preference before first paint to prevent FOUC -->
     <script>(function(){try{var t=localStorage.getItem('worldmonitor-theme');var v=localStorage.getItem('worldmonitor-variant');if(!v){var h=location.hostname;if(h.startsWith('happy.'))v='happy';else if(h.startsWith('tech.'))v='tech';else if(h.startsWith('finance.'))v='finance';}if(v)document.documentElement.dataset.variant=v;if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}else if(v==='happy'){document.documentElement.dataset.theme='light';}}catch(e){}document.documentElement.classList.add('no-transition');})()</script>
@@ -157,10 +161,11 @@
       [data-variant="happy"][data-theme="dark"] .skeleton-line{background:linear-gradient(90deg,rgba(139,175,122,.05) 25%,rgba(139,175,122,.10) 50%,rgba(139,175,122,.05) 75%);background-size:200% 100%;animation:skel-shimmer 1.5s infinite}
     </style>
 
-    <!-- Google Fonts (Nunito for happy variant) -->
+    <!-- Google Fonts (Nunito for happy variant) — loaded async to avoid render-blocking -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet"></noscript>
   </head>
   <body>
     <div id="app">
